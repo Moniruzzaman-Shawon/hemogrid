@@ -44,7 +44,7 @@ class VerifyEmailView(generics.GenericAPIView):
 
 class DonorProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = DonorProfileSerializer
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
