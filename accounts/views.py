@@ -5,6 +5,12 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from .serializers import RegisterSerializer, DonorProfileSerializer
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from blood_requests.models import BloodRequest, DonationHistory
+from blood_requests.serializers import BloodRequestSerializer, DonationHistorySerializer
+
+
 
 # Create your views here.
 
@@ -46,3 +52,26 @@ class DonorListView(generics.ListAPIView):
     def get_queryset(self):
         # Return only users who are available donors
         return User.objects.filter(availability_status=True).exclude(full_name__isnull=True)
+    
+
+class DashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        # Get all active requests excluding the user's own
+        requests = BloodRequest.objects.filter(is_active=True).exclude(requester=request.user)
+        requests_data = BloodRequestSerializer(requests, many=True).data
+
+        # Get donation history of current user
+        history = DonationHistory.objects.filter(donor=request.user)
+        history_data = DonationHistorySerializer(history, many=True).data
+
+        return Response({
+            "recipient_requests": requests_data,
+            "donation_history": history_data,
+        })
+    
+class PublicDonorListView(generics.ListAPIView):
+    queryset = User.objects.filter(availability_status=True).exclude(full_name__isnull=True)
+    serializer_class = DonorProfileSerializer
+    permission_classes = [permissions.AllowAny]
