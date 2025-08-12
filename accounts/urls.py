@@ -11,7 +11,6 @@ urlpatterns = [
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
 
     path('donor-profile/', DonorProfileView.as_view(), name='donor-profile'),
-    path('donors/', DonorListView.as_view(), name='donor-list'),
+    path('donors/', PublicDonorListView.as_view(), name='public-donor-list'),    
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
-    path('donors/', PublicDonorListView.as_view(), name='public-donor-list'),
 ]

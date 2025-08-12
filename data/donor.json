@@ -1,0 +1,202 @@
+[
+  {
+    "email": "sadia.khan@example.com",
+    "password": "Pass1234!",
+    "full_name": "Sadia Khan",
+    "age": 28,
+    "address": "House 23, Road 5, Dhanmondi, Dhaka",
+    "last_donation_date": "2025-02-10",
+    "availability_status": true,
+    "blood_group": "A+"
+  },
+  {
+    "email": "rafi.ahmed@example.com",
+    "password": "Pass1234!",
+    "full_name": "Rafi Ahmed",
+    "age": 34,
+    "address": "Apartment 12B, Bashundhara, Dhaka",
+    "last_donation_date": "2024-12-05",
+    "availability_status": true,
+    "blood_group": "O-"
+  },
+  {
+    "email": "maria.islam@example.com",
+    "password": "Pass1234!",
+    "full_name": "Maria Islam",
+    "age": 31,
+    "address": "Plot 45, Uttara, Dhaka",
+    "last_donation_date": "2025-04-12",
+    "availability_status": true,
+    "blood_group": "B+"
+  },
+  {
+    "email": "arif.hossain@example.com",
+    "password": "Pass1234!",
+    "full_name": "Arif Hossain",
+    "age": 40,
+    "address": "House 56, Mirpur 10, Dhaka",
+    "last_donation_date": "2024-11-30",
+    "availability_status": true,
+    "blood_group": "AB-"
+  },
+  {
+    "email": "fatima.begum@example.com",
+    "password": "Pass1234!",
+    "full_name": "Fatima Begum",
+    "age": 26,
+    "address": "Road 8, Gulshan 2, Dhaka",
+    "last_donation_date": "2025-01-20",
+    "availability_status": true,
+    "blood_group": "O+"
+  },
+  {
+    "email": "raihan.molla@example.com",
+    "password": "Pass1234!",
+    "full_name": "Raihan Molla",
+    "age": 29,
+    "address": "Sector 7, Uttara, Dhaka",
+    "last_donation_date": "2025-03-15",
+    "availability_status": true,
+    "blood_group": "A-"
+  },
+  {
+    "email": "shahed.rana@example.com",
+    "password": "Pass1234!",
+    "full_name": "Shahed Rana",
+    "age": 32,
+    "address": "House 102, Banani, Dhaka",
+    "last_donation_date": "2024-10-25",
+    "availability_status": true,
+    "blood_group": "B-"
+  },
+  {
+    "email": "naima.sultana@example.com",
+    "password": "Pass1234!",
+    "full_name": "Naima Sultana",
+    "age": 25,
+    "address": "Apartment 5A, Dhanmondi, Dhaka",
+    "last_donation_date": "2025-06-01",
+    "availability_status": true,
+    "blood_group": "AB+"
+  },
+  {
+    "email": "imran.haque@example.com",
+    "password": "Pass1234!",
+    "full_name": "Imran Haque",
+    "age": 36,
+    "address": "Road 9, Mohammadpur, Dhaka",
+    "last_donation_date": "2025-04-10",
+    "availability_status": true,
+    "blood_group": "O-"
+  },
+  {
+    "email": "tania.rahman@example.com",
+    "password": "Pass1234!",
+    "full_name": "Tania Rahman",
+    "age": 30,
+    "address": "House 78, Motijheel, Dhaka",
+    "last_donation_date": "2024-12-18",
+    "availability_status": true,
+    "blood_group": "A+"
+  },
+  {
+    "email": "javed.islam@example.com",
+    "password": "Pass1234!",
+    "full_name": "Javed Islam",
+    "age": 37,
+    "address": "Road 11, Baridhara, Dhaka",
+    "last_donation_date": "2025-01-08",
+    "availability_status": true,
+    "blood_group": "B+"
+  },
+  {
+    "email": "rina.chowdhury@example.com",
+    "password": "Pass1234!",
+    "full_name": "Rina Chowdhury",
+    "age": 33,
+    "address": "House 27, Mirpur 2, Dhaka",
+    "last_donation_date": "2024-09-15",
+    "availability_status": true,
+    "blood_group": "O+"
+  },
+  {
+    "email": "sabbir.miah@example.com",
+    "password": "Pass1234!",
+    "full_name": "Sabbir Miah",
+    "age": 29,
+    "address": "Sector 3, Uttara, Dhaka",
+    "last_donation_date": "2025-03-30",
+    "availability_status": true,
+    "blood_group": "AB-"
+  },
+  {
+    "email": "shirin.karim@example.com",
+    "password": "Pass1234!",
+    "full_name": "Shirin Karim",
+    "age": 28,
+    "address": "Road 15, Gulshan, Dhaka",
+    "last_donation_date": "2025-02-10",
+    "availability_status": true,
+    "blood_group": "A-"
+  },
+  {
+    "email": "fazlul.haque@example.com",
+    "password": "Pass1234!",
+    "full_name": "Fazlul Haque",
+    "age": 31,
+    "address": "House 40, Mohammadpur, Dhaka",
+    "last_donation_date": "2024-11-22",
+    "availability_status": true,
+    "blood_group": "B-"
+  },
+  {
+    "email": "tarek.ahmed@example.com",
+    "password": "Pass1234!",
+    "full_name": "Tarek Ahmed",
+    "age": 35,
+    "address": "Apartment 9C, Banani, Dhaka",
+    "last_donation_date": "2025-01-30",
+    "availability_status": true,
+    "blood_group": "O+"
+  },
+  {
+    "email": "farhana.sultana@example.com",
+    "password": "Pass1234!",
+    "full_name": "Farhana Sultana",
+    "age": 31,
+    "address": "Road 6, Dhanmondi, Dhaka",
+    "last_donation_date": "2025-05-12",
+    "availability_status": true,
+    "blood_group": "AB+"
+  },
+  {
+    "email": "mohsin.karim@example.com",
+    "password": "Pass1234!",
+    "full_name": "Mohsin Karim",
+    "age": 27,
+    "address": "Sector 5, Uttara, Dhaka",
+    "last_donation_date": "2025-02-14",
+    "availability_status": true,
+    "blood_group": "O-"
+  },
+  {
+    "email": "noor.rahman@example.com",
+    "password": "Pass1234!",
+    "full_name": "Noor Rahman",
+    "age": 29,
+    "address": "House 11, Mirpur 6, Dhaka",
+    "last_donation_date": "2024-11-19",
+    "availability_status": true,
+    "blood_group": "A+"
+  },
+  {
+    "email": "mina.haque@example.com",
+    "password": "Pass1234!",
+    "full_name": "Mina Haque",
+    "age": 26,
+    "address": "Road 22, Mohammadpur, Dhaka",
+    "last_donation_date": "2025-03-25",
+    "availability_status": true,
+    "blood_group": "B+"
+  }
+]

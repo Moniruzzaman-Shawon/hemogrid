@@ -1,6 +1,18 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.contrib.auth.models import AbstractUser, Group, Permission
+
+# BLood Groups
+BLOOD_GROUP_CHOICES = [
+    ('O+', 'O+'),
+    ('O-', 'O-'),
+    ('A+', 'A+'),
+    ('A-', 'A-'),
+    ('B+', 'B+'),
+    ('B-', 'B-'),
+    ('AB+', 'AB+'),
+    ('AB-', 'AB-'),
+]
 
 
 class CustomUserManager(BaseUserManager):
@@ -33,12 +45,36 @@ class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
     is_verified = models.BooleanField(default=False)
-
     full_name = models.CharField(max_length=255, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     last_donation_date = models.DateField(blank=True, null=True)
     availability_status = models.BooleanField(default=True)
+
+    blood_group = models.CharField(
+        max_length=3,
+        choices=BLOOD_GROUP_CHOICES,
+        blank=True,
+        null=True,
+        help_text="User's blood group"
+    )
+
+    groups = models.ManyToManyField(
+        Group,
+        verbose_name='groups',
+        blank=True,
+        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
+        related_name='user_set',
+        related_query_name='user',
+    )
+    user_permissions = models.ManyToManyField(
+        Permission,
+        verbose_name='user permissions',
+        blank=True,
+        help_text='Specific permissions for this user.',
+        related_name='user_set',
+        related_query_name='user',
+    )
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -47,3 +83,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
+
+
+
+

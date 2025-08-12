@@ -5,10 +5,15 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import default_token_generator
 from .serializers import RegisterSerializer, DonorProfileSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from blood_requests.models import BloodRequest, DonationHistory
 from blood_requests.serializers import BloodRequestSerializer, DonationHistorySerializer
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, generics
+
+
+
 
 
 
@@ -47,18 +52,20 @@ class DonorProfileView(generics.RetrieveUpdateAPIView):
 
 class DonorListView(generics.ListAPIView):
     serializer_class = DonorProfileSerializer
-    permission_classes = [permissions.AllowAny]  # public access
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        # Return only users who are available donors
-        return User.objects.filter(availability_status=True).exclude(full_name__isnull=True)
-    
+        queryset = User.objects.filter(availability_status=True).exclude(full_name__isnull=True)
+        blood_group = self.request.query_params.get('blood_group')
+        if blood_group:
+            queryset = queryset.filter(blood_group=blood_group)
+        return queryset
 
 class DashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # Get all active requests excluding the user's own
+        # Get all active requests excluding the users own
         requests = BloodRequest.objects.filter(is_active=True).exclude(requester=request.user)
         requests_data = BloodRequestSerializer(requests, many=True).data
 
@@ -74,4 +81,8 @@ class DashboardView(APIView):
 class PublicDonorListView(generics.ListAPIView):
     queryset = User.objects.filter(availability_status=True).exclude(full_name__isnull=True)
     serializer_class = DonorProfileSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
+
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['blood_group']
+    search_fields = ['full_name', 'address']

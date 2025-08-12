@@ -43,10 +43,4 @@ class RegisterSerializer(serializers.ModelSerializer):
 class DonorProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = (
-            'full_name',
-            'age',
-            'address',
-            'last_donation_date',
-            'availability_status'
-        )
+        fields = ['id', 'email', 'full_name', 'age', 'address', 'last_donation_date', 'availability_status', 'blood_group']
