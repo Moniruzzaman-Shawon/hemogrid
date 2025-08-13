@@ -38,8 +38,6 @@ Hemogrid is a **RESTful backend service** built with Django and Django REST Fram
 1. **Clone the repository:**
 
 ```bash
-bash
-CopyEdit
 git clone https://github.com/yourusername/hemogrid.git
 cd hemogrid
 
@@ -48,8 +46,6 @@ cd hemogrid
 1. **Create and activate a virtual environment:**
 
 ```bash
-bash
-CopyEdit
 python -m venv .hemo_env
 source .hemo_env/bin/activate  # Linux/Mac
 .hemo_env\Scripts\activate     # Windows
@@ -59,17 +55,13 @@ source .hemo_env/bin/activate  # Linux/Mac
 1. **Install dependencies:**
 
 ```bash
-bash
-CopyEdit
 pip install -r requirements.txt
 
 ```
 
 1. **Create a `.env` file** in the project root with the following:
 
-```
-env
-CopyEdit
+```env
 DJANGO_SECRET_KEY=your-secret-key
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
@@ -81,8 +73,7 @@ EMAIL_HOST_PASSWORD=your_email_password_or_app_password
 1. **Apply migrations:**
 
 ```bash
-bash
-CopyEdit
+
 python manage.py migrate
 
 ```
@@ -90,8 +81,6 @@ python manage.py migrate
 1. **Create a superuser (admin):**
 
 ```bash
-bash
-CopyEdit
 python manage.py createsuperuser
 
 ```
@@ -99,8 +88,7 @@ python manage.py createsuperuser
 1. **Run the development server:**
 
 ```bash
-bash
-CopyEdit
+
 python manage.py runserver
 
 ```
