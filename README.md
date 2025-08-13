@@ -4,7 +4,7 @@ Hemogrid is a **RESTful backend service** built with Django and Django REST Fram
 
 🔗 **Swagger Documentation:** [[http://127.0.0.1:8000/swagger/?format=openapi](https://hemogrid.vercel.app/swagger/)]
 
-🔗 **ReDoc Documentation:** [http://127.0.0.1:8000/redoc/](http://127.0.0.1:8000/redoc/)
+🔗 **ReDoc Documentation:** [[https://hemogrid.vercel.app/redoc/](https://hemogrid.vercel.app/redoc/)]
 
 ---
 
