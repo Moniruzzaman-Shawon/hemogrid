@@ -55,11 +55,11 @@ pip install -r requirements.txt
 4. Create a .env file in the project root with the following content:
 ```
 env
-    DJANGO_SECRET_KEY=your-secret-key
-    DEBUG=True
-    ALLOWED_HOSTS=localhost,127.0.0.1
-    EMAIL_HOST_USER=your_email@gmail.com
-    EMAIL_HOST_PASSWORD=your_email_password_or_app_password
+DJANGO_SECRET_KEY=your-secret-key
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_email_password_or_app_password
 ```
 
 
