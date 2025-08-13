@@ -59,6 +59,13 @@ class User(AbstractUser):
         help_text="User's blood group"
     )
 
+    profile_picture = models.ImageField(
+        upload_to='profile_pictures/',
+        default='profile_pictures/default.jpg',
+        blank=True,
+        null=True
+    )
+
     groups = models.ManyToManyField(
         Group,
         verbose_name='groups',

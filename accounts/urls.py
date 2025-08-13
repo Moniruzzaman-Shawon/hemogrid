@@ -13,4 +13,6 @@ urlpatterns = [
     path('donor-profile/', DonorProfileView.as_view(), name='donor-profile'),
     path('donors/', PublicDonorListView.as_view(), name='public-donor-list'),    
     path('dashboard/', DashboardView.as_view(), name='dashboard'),
+    path('donor/profile/', DonorProfileView.as_view(), name='donor-profile'),
+
 ]
