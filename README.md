@@ -2,7 +2,7 @@
 
 Hemogrid is a **RESTful backend service** built with Django and Django REST Framework to connect **blood donors** and **recipients** seamlessly. It provides **user registration with email verification**, **donor profile management**, **blood request handling**, **donation history tracking**, and **JWT authentication**.
 
-🔗 **Swagger Documentation:** [http://127.0.0.1:8000/swagger/?format=openapi](http://127.0.0.1:8000/swagger/?format=openapi)
+🔗 **Swagger Documentation:** [[http://127.0.0.1:8000/swagger/?format=openapi](https://hemogrid.vercel.app/swagger/)]
 
 🔗 **ReDoc Documentation:** [http://127.0.0.1:8000/redoc/](http://127.0.0.1:8000/redoc/)
 
