@@ -1,8 +1,8 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.db import models
+from cloudinary.models import CloudinaryField
 
-# BLood Groups
 BLOOD_GROUP_CHOICES = [
     ('O+', 'O+'),
     ('O-', 'O-'),
@@ -13,7 +13,6 @@ BLOOD_GROUP_CHOICES = [
     ('AB+', 'AB+'),
     ('AB-', 'AB-'),
 ]
-
 
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
@@ -33,55 +32,31 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_active', True)
         extra_fields.setdefault('is_verified', True)
 
-        if extra_fields.get('is_staff') is not True:
-            raise ValueError('Superuser must have is_staff=True.')
-        if extra_fields.get('is_superuser') is not True:
-            raise ValueError('Superuser must have is_superuser=True.')
-
+        if not extra_fields.get('is_staff') or not extra_fields.get('is_superuser'):
+            raise ValueError('Superuser must have is_staff=True and is_superuser=True.')
         return self.create_user(email, password, **extra_fields)
 
 
 class User(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    is_verified = models.BooleanField(default=False)
     full_name = models.CharField(max_length=255, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     last_donation_date = models.DateField(blank=True, null=True)
     availability_status = models.BooleanField(default=True)
+    is_verified = models.BooleanField(default=False)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
 
-    blood_group = models.CharField(
-        max_length=3,
-        choices=BLOOD_GROUP_CHOICES,
+    profile_picture = CloudinaryField(
+        'image',
         blank=True,
         null=True,
-        help_text="User's blood group"
+        default='profile_pictures/default.jpg'
     )
 
-    profile_picture = models.ImageField(
-        upload_to='profile_pictures/',
-        default='profile_pictures/default.jpg',
-        blank=True,
-        null=True
-    )
-
-    groups = models.ManyToManyField(
-        Group,
-        verbose_name='groups',
-        blank=True,
-        help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
-        related_name='user_set',
-        related_query_name='user',
-    )
-    user_permissions = models.ManyToManyField(
-        Permission,
-        verbose_name='user permissions',
-        blank=True,
-        help_text='Specific permissions for this user.',
-        related_name='user_set',
-        related_query_name='user',
-    )
+    groups = models.ManyToManyField(Group, blank=True)
+    user_permissions = models.ManyToManyField(Permission, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
@@ -90,7 +65,3 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.email
-
-
-
-

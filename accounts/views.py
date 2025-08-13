@@ -48,7 +48,6 @@ class DonorProfileView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
-    
 
 class DonorListView(generics.ListAPIView):
     serializer_class = DonorProfileSerializer

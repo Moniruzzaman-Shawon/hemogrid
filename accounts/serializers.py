@@ -17,10 +17,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ('email', 'password')
 
     def create(self, validated_data):
-        email = validated_data['email'].lower()  # Normalize email case
-        user = User.objects.create(
-            email=email,
-        )
+        email = validated_data['email'].lower()
+        user = User.objects.create(email=email)
         user.set_password(validated_data['password'])
         user.is_active = False
         user.save()
@@ -31,7 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         send_mail(
             'Verify your Hemogrid account',
-            f'Click here to verify: {verify_link}',
+            f'Click here to verify your account: {verify_link}',
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
@@ -41,6 +39,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class DonorProfileSerializer(serializers.ModelSerializer):
+    profile_picture = serializers.ImageField(required=False)  # For Cloudinary
+
     class Meta:
         model = User
         fields = [
