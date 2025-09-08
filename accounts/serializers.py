@@ -107,3 +107,16 @@ class UpdateEmailSerializer(serializers.Serializer):
         if get_user_model().objects.filter(email=value).exists():
             raise serializers.ValidationError("This email is already in use.")
         return value
+    
+# -------------------------
+# Availability
+# -------------------------
+class AvailabilitySerializer(serializers.Serializer):
+    availability_status = serializers.ChoiceField(
+        choices=[
+            ('available', 'Available'),
+            ('not_available', 'Not Available'),
+            ('busy', 'Busy')
+        ]
+    )
+
