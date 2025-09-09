@@ -58,14 +58,12 @@ class User(AbstractUser):
     age = models.PositiveIntegerField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     last_donation_date = models.DateField(blank=True, null=True)
-    availability_status = models.BooleanField(default=True)
-    is_verified = models.BooleanField(default=False)
-    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='donor')
-
     availability_status = models.CharField(
         max_length=20, choices=AVAILABILITY_CHOICES, default='available'
     )
+    is_verified = models.BooleanField(default=False)
+    blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='donor')
 
     profile_picture = CloudinaryField('image', blank=True, null=True, default='profile_pictures/default.jpg')
 

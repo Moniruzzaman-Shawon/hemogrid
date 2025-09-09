@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',
     'blood_requests',
+    'admin_api',
 
 ]
 
