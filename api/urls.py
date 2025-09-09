@@ -1,6 +1,7 @@
+# api/urls.py
 from django.urls import path
-from .views import api_home
+from .views import APIHomeView
 
 urlpatterns = [
-    path('', api_home, name='api-home'),  # This makes /api/ the home endpoint
+    path('', APIHomeView.as_view(), name='api-home'),
 ]
