@@ -24,31 +24,38 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    #Redirect to the api
-    path('', RedirectView.as_view(url='/api/', permanent=True)),
+   path('admin/', admin.site.urls),
 
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+   # Admin API
+   path('api/admin/', include('admin_api.urls')),
 
-    # JWT Auth
-    path('api/auth/jwt/create/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/auth/jwt/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+   #Redirect to the api
+   path('', RedirectView.as_view(url='/api/', permanent=True)),
 
-    # API home
-    path('api/', include('api.urls')),
+   path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+   path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
-    # Accounts
-    path('api/auth/', include('accounts.urls')),
+   # JWT Auth
+   path('api/auth/jwt/create/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+   path('api/auth/jwt/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
-    # Blood Requests
-    path('api/blood-requests/', include('blood_requests.urls')),
+   # API home
+   path('api/', include('api.urls')),
 
-    # Browsable API login
-    path('api-auth/', include('rest_framework.urls')),
+   # Accounts
+   path('api/auth/', include('accounts.urls')),
+
+   # Notifications
+   path('api/notifications/', include('notifications.urls')),
+
+   # Blood Requests
+   path('api/blood-requests/', include('blood_requests.urls')),
+
+   # Browsable API login
+   path('api-auth/', include('rest_framework.urls')),
 ]
 
 if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+   import debug_toolbar
+   urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+   urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

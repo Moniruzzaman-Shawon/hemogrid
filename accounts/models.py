@@ -14,6 +14,20 @@ BLOOD_GROUP_CHOICES = [
     ('AB-', 'AB-'),
 ]
 
+ROLE_CHOICES = [
+    ("donor", "Donor"),
+    ("requester", "Requester"),
+    ("hospital", "Hospital"),
+    ("admin", "Admin"),
+]
+
+# Donor
+AVAILABILITY_CHOICES = [
+    ('available', 'Available'),
+    ('not_available', 'Not Available'),
+    ('busy', 'Busy')
+]
+
 class CustomUserManager(BaseUserManager):
     use_in_migrations = True
 
@@ -44,16 +58,14 @@ class User(AbstractUser):
     age = models.PositiveIntegerField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     last_donation_date = models.DateField(blank=True, null=True)
-    availability_status = models.BooleanField(default=True)
+    availability_status = models.CharField(
+        max_length=20, choices=AVAILABILITY_CHOICES, default='available'
+    )
     is_verified = models.BooleanField(default=False)
     blood_group = models.CharField(max_length=3, choices=BLOOD_GROUP_CHOICES, blank=True, null=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='donor')
 
-    profile_picture = CloudinaryField(
-        'image',
-        blank=True,
-        null=True,
-        default='profile_pictures/default.jpg'
-    )
+    profile_picture = CloudinaryField('image', blank=True, null=True, default='profile_pictures/default.jpg')
 
     groups = models.ManyToManyField(Group, blank=True)
     user_permissions = models.ManyToManyField(Permission, blank=True)
