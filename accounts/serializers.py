@@ -6,8 +6,23 @@ from django.conf import settings
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
+from .models import User 
 
 User = get_user_model()
+
+
+# Admin view of users
+class AdminUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'blood_group', 'is_active', 'is_verified', 'is_staff']
+        read_only_fields = ['id', 'username', 'email']
+
+# Admin update (suspend/verify)
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_active', 'is_verified']
 
 # -------------------------
 # Register Serializer

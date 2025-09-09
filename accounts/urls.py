@@ -11,6 +11,8 @@ from .views import (
     ForgotPasswordView,
     UpdateEmailView,
     UpdateAvailabilityView,
+    AdminUserListView,
+    AdminUserUpdateView
 )
 
 app_name = "auth"
@@ -21,6 +23,10 @@ urlpatterns = [
     path('verify-email/<uidb64>/<token>/', VerifyEmailView.as_view(), name='verify-email'),
     path('update-email/', UpdateEmailView.as_view(), name='update-email'),
     path('update-availability/', UpdateAvailabilityView.as_view(), name='update-availability'),
+
+    # ADMIN
+    path('admin/users/', AdminUserListView.as_view(), name='admin-users-list'),
+    path('admin/users/<int:pk>/update/', AdminUserUpdateView.as_view(), name='admin-user-update'),
 
     # JWT authentication
     path('login/', TokenObtainPairView.as_view(), name='login'),

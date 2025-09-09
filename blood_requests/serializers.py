@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import BloodRequest, DonationHistory
 from django.utils import timezone
+from accounts.models import User
 
 
 # -------------------------
@@ -41,3 +42,22 @@ class DonationHistorySerializer(serializers.ModelSerializer):
         model = DonationHistory
         fields = '__all__'
         read_only_fields = ['donor', 'accepted_at']
+
+# -------------------------
+# Admin view of blood requests
+# -------------------------
+class AdminBloodRequestSerializer(serializers.ModelSerializer):
+    requester_email = serializers.ReadOnlyField(source='requester.email')
+
+    class Meta:
+        model = BloodRequest
+        fields = '__all__'
+
+# -------------------------
+# For stats
+# -------------------------
+class AdminStatsSerializer(serializers.Serializer):
+    total_users = serializers.IntegerField()
+    total_requests = serializers.IntegerField()
+    fulfilled_requests = serializers.IntegerField()
+    active_donors = serializers.IntegerField()

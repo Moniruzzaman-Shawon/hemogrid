@@ -1,14 +1,19 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status, filters
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from django.utils import timezone
 from .models import BloodRequest, DonationHistory
 from .serializers import (
     BloodRequestSerializer,
     DonationHistorySerializer,
-    BloodRequestStatusSerializer
+    BloodRequestStatusSerializer,
+    AdminBloodRequestSerializer,
+    AdminStatsSerializer
 )
 from django_filters.rest_framework import DjangoFilterBackend
+from accounts.models import User
+
 
 # -------------------------
 # Create a new blood request
@@ -100,3 +105,38 @@ class DonationHistoryView(generics.ListAPIView):
 
     def get_queryset(self):
         return BloodRequest.objects.filter(donations__donor=self.request.user)
+
+# -------------------------
+# Only admins allowed
+# -------------------------
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff
+
+# -------------------------
+# List all requests (admin only)
+# -------------------------
+class AdminBloodRequestListView(generics.ListAPIView):
+    queryset = BloodRequest.objects.all().order_by('-created_at')
+    serializer_class = AdminBloodRequestSerializer
+    permission_classes = [IsAdminUser]
+
+# -------------------------
+# Stats endpoint
+# -------------------------
+class AdminStatsView(APIView):
+    permission_classes = [IsAdminUser]
+
+    def get(self, request, *args, **kwargs):
+        total_users = User.objects.count()
+        total_requests = BloodRequest.objects.count()
+        fulfilled_requests = BloodRequest.objects.filter(status='completed').count()
+        active_donors = DonationHistory.objects.values('donor').distinct().count()
+
+        stats = {
+            'total_users': total_users,
+            'total_requests': total_requests,
+            'fulfilled_requests': fulfilled_requests,
+            'active_donors': active_donors,
+        }
+        return Response(stats)

@@ -1,4 +1,4 @@
-from rest_framework import generics, status, filters
+from rest_framework import generics, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -15,13 +15,41 @@ from .serializers import (
     ResetPasswordSerializer,
     ChangePasswordSerializer,
     UpdateEmailSerializer,
-    AvailabilitySerializer
+    AvailabilitySerializer,
+    AdminUserSerializer,
+    AdminUserUpdateSerializer
 )
 from blood_requests.models import BloodRequest, DonationHistory
 from blood_requests.serializers import BloodRequestSerializer, DonationHistorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
 User = get_user_model()
+
+# -------------------------
+# Only admins allowed
+# -------------------------
+
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_staff
+
+# -------------------------
+# List all users (admin only)
+# -------------------------
+
+class AdminUserListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserSerializer
+    permission_classes = [IsAdminUser]
+
+# -------------------------
+# Update user (suspend / verify)
+# -------------------------
+
+class AdminUserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserUpdateSerializer
+    permission_classes = [IsAdminUser]
 
 # -------------------------
 # Registration & Email Verification

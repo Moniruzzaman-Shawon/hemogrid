@@ -6,7 +6,9 @@ from .views import (
     UserDonationHistoryView,
     MyRequestsView, 
     DonationHistoryView,
-    UpdateBloodRequestStatusView
+    UpdateBloodRequestStatusView,
+    AdminBloodRequestListView,
+    AdminStatsView
 )
 
 urlpatterns = [
@@ -31,5 +33,8 @@ urlpatterns = [
     # Donor's donation history via blood requests (optional extra view)
     path('donation-history/', UserDonationHistoryView.as_view(), name='user-donation-history'),
     path('donation-history/all/', DonationHistoryView.as_view(), name='donation-history-all'),
+
+    path('admin/requests/', AdminBloodRequestListView.as_view(), name='admin-requests-list'),
+    path('admin/stats/', AdminStatsView.as_view(), name='admin-stats'),
 
 ]
