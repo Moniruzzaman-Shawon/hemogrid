@@ -3,31 +3,48 @@ from rest_framework import generics, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.utils import timezone
+from django.db.models import Count
 from .models import BloodRequest, DonationHistory
 from .serializers import (
     BloodRequestSerializer,
     DonationHistorySerializer,
     BloodRequestStatusSerializer,
     AdminBloodRequestSerializer,
-    AdminStatsSerializer
 )
-from django_filters.rest_framework import DjangoFilterBackend
 from accounts.models import User
-
+from notifications.models import Notification
+from django_filters.rest_framework import DjangoFilterBackend
 
 # -------------------------
-# Create a new blood request
+# Permissions
+# -------------------------
+class IsAdminUser(permissions.BasePermission):
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and (request.user.is_staff or request.user.role=='admin')
+
+# -------------------------
+# Blood Requests
 # -------------------------
 class BloodRequestCreateView(generics.CreateAPIView):
     serializer_class = BloodRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        serializer.save(requester=self.request.user)
+        blood_request = serializer.save(requester=self.request.user)
 
-# -------------------------
-# List all active requests with filtering, searching, and auto-expiration
-# -------------------------
+        # Trigger notification to nearby donors
+        nearby_donors = User.objects.filter(
+            role='donor',
+            is_verified=True,
+            availability_status='available',
+            blood_group=blood_request.blood_group
+        )
+        for donor in nearby_donors:
+            Notification.objects.create(
+                user=donor,
+                message=f"New blood request for {blood_request.blood_group} near you!"
+            )
+
 class BloodRequestListView(generics.ListAPIView):
     serializer_class = BloodRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -42,9 +59,6 @@ class BloodRequestListView(generics.ListAPIView):
         BloodRequest.objects.filter(expires_at__lt=now, is_active=True).update(is_active=False)
         return BloodRequest.objects.filter(is_active=True).exclude(requester=self.request.user)
 
-# -------------------------
-# Accept a blood request
-# -------------------------
 class AcceptBloodRequestView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -66,9 +80,6 @@ class AcceptBloodRequestView(generics.GenericAPIView):
 
         return Response({"detail": "Request accepted successfully."}, status=status.HTTP_201_CREATED)
 
-# -------------------------
-# Update blood request status
-# -------------------------
 class UpdateBloodRequestStatusView(generics.UpdateAPIView):
     serializer_class = BloodRequestStatusSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -76,9 +87,6 @@ class UpdateBloodRequestStatusView(generics.UpdateAPIView):
     def get_object(self):
         return get_object_or_404(BloodRequest, pk=self.kwargs['pk'], requester=self.request.user)
 
-# -------------------------
-# View logged-in user's donation history
-# -------------------------
 class UserDonationHistoryView(generics.ListAPIView):
     serializer_class = DonationHistorySerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -86,9 +94,6 @@ class UserDonationHistoryView(generics.ListAPIView):
     def get_queryset(self):
         return DonationHistory.objects.filter(donor=self.request.user)
 
-# -------------------------
-# Recipient's request list (My Requests)
-# -------------------------
 class MyRequestsView(generics.ListAPIView):
     serializer_class = BloodRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -96,9 +101,6 @@ class MyRequestsView(generics.ListAPIView):
     def get_queryset(self):
         return BloodRequest.objects.filter(requester=self.request.user)
 
-# -------------------------
-# Donor's donation history (via BloodRequest relation)
-# -------------------------
 class DonationHistoryView(generics.ListAPIView):
     serializer_class = BloodRequestSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -107,23 +109,13 @@ class DonationHistoryView(generics.ListAPIView):
         return BloodRequest.objects.filter(donations__donor=self.request.user)
 
 # -------------------------
-# Only admins allowed
-# -------------------------
-class IsAdminUser(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_staff
-
-# -------------------------
-# List all requests (admin only)
+# Admin Endpoints
 # -------------------------
 class AdminBloodRequestListView(generics.ListAPIView):
     queryset = BloodRequest.objects.all().order_by('-created_at')
     serializer_class = AdminBloodRequestSerializer
     permission_classes = [IsAdminUser]
 
-# -------------------------
-# Stats endpoint
-# -------------------------
 class AdminStatsView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -133,10 +125,17 @@ class AdminStatsView(APIView):
         fulfilled_requests = BloodRequest.objects.filter(status='completed').count()
         active_donors = DonationHistory.objects.values('donor').distinct().count()
 
+        # Most active donors
+        most_active_donors = User.objects.filter(donationhistory__isnull=False) \
+            .annotate(donation_count=Count('donationhistory')) \
+            .order_by('-donation_count')[:5] \
+            .values('id', 'email', 'donation_count')
+
         stats = {
             'total_users': total_users,
             'total_requests': total_requests,
             'fulfilled_requests': fulfilled_requests,
             'active_donors': active_donors,
+            'most_active_donors': list(most_active_donors),
         }
         return Response(stats)

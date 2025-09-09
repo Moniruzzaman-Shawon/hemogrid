@@ -24,7 +24,7 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+   path('admin/', admin.site.urls),
 
    # Admin API
    path('api/admin/', include('admin_api.urls')),
@@ -44,6 +44,9 @@ urlpatterns = [
 
    # Accounts
    path('api/auth/', include('accounts.urls')),
+
+   # Notifications
+   path('api/notifications/', include('notifications.urls')),
 
    # Blood Requests
    path('api/blood-requests/', include('blood_requests.urls')),

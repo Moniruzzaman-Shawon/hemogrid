@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'accounts',
     'blood_requests',
     'admin_api',
+    'notifications',
 
 ]
 
