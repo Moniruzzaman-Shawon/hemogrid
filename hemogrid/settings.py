@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -77,6 +78,7 @@ SIMPLE_JWT = {
 
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'debug_toolbar.middleware.DebugToolbarMiddleware',
@@ -192,6 +194,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+
+
+# Allow frontend
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+]
+
+# If using cookies/auth
+CORS_ALLOW_CREDENTIALS = True
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
