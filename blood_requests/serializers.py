@@ -61,3 +61,21 @@ class AdminStatsSerializer(serializers.Serializer):
     total_requests = serializers.IntegerField()
     fulfilled_requests = serializers.IntegerField()
     active_donors = serializers.IntegerField()
+
+
+
+class AcceptBloodRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BloodRequest
+        fields = [
+            'id',
+            'requester',
+            'blood_type',
+            'quantity',
+            'location',
+            'status',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'requester', 'status', 'is_active', 'created_at', 'updated_at']

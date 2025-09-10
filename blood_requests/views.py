@@ -10,6 +10,7 @@ from .serializers import (
     DonationHistorySerializer,
     BloodRequestStatusSerializer,
     AdminBloodRequestSerializer,
+    AcceptBloodRequestSerializer
 )
 from accounts.models import User
 from notifications.models import Notification
@@ -60,8 +61,10 @@ class BloodRequestListView(generics.ListAPIView):
         return BloodRequest.objects.filter(is_active=True).exclude(requester=self.request.user)
 
 class AcceptBloodRequestView(generics.GenericAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+    queryset = BloodRequest.objects.all()
+    serializer_class = AcceptBloodRequestSerializer
 
+    
     def post(self, request, pk):
         blood_request = get_object_or_404(BloodRequest, pk=pk, is_active=True)
 

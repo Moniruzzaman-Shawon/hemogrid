@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "corsheaders",
     'drf_yasg',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -69,7 +68,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT'),
+    'AUTH_HEADER_TYPES': ('JWT' ),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -213,7 +212,7 @@ SWAGGER_SETTINGS = {
       'Basic': {
             'type': 'basic'
       },
-      'Bearer': {
+      'JWT': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header',
