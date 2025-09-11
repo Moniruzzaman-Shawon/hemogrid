@@ -68,7 +68,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT' ),
+    'AUTH_HEADER_TYPES': ('JWT',),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -195,11 +195,10 @@ INTERNAL_IPS = [
 ]
 
 
-# Allow frontend
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
 ]
-
 # If using cookies/auth
 CORS_ALLOW_CREDENTIALS = True
 
