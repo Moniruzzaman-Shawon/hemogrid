@@ -1,10 +1,11 @@
-from rest_framework import generics, permissions
+from rest_framework import generics
 from accounts.models import User
 from blood_requests.models import BloodRequest, DonationHistory
 from .serializers import AdminUserSerializer, AdminBloodRequestSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Count
+from accounts.permissions import IsRole  # import your custom permission
 
 
 # -----------------
@@ -13,11 +14,11 @@ from django.db.models import Count
 class AdminUserListView(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = AdminUserSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsRole.with_roles('admin')]
 
 
 class AdminUserSuspendView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsRole.with_roles('admin')]
 
     def post(self, request, pk):
         try:
@@ -30,7 +31,7 @@ class AdminUserSuspendView(APIView):
 
 
 class AdminUserVerifyView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsRole.with_roles('admin')]
 
     def post(self, request, pk):
         try:
@@ -48,14 +49,14 @@ class AdminUserVerifyView(APIView):
 class AdminBloodRequestListView(generics.ListAPIView):
     queryset = BloodRequest.objects.all()
     serializer_class = AdminBloodRequestSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsRole.with_roles('admin')]
 
 
 # -----------------
 # Statistics
 # -----------------
 class AdminStatsView(APIView):
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [IsRole.with_roles('admin')]
 
     def get(self, request):
         total_users = User.objects.count()

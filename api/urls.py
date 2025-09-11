@@ -1,7 +1,7 @@
 # api/urls.py
 from django.urls import path
-from .views import APIHomeView
+from .views import api_home
 
 urlpatterns = [
-    path('', APIHomeView.as_view(), name='api-home'),
+    path('', api_home, name='api-home'),
 ]

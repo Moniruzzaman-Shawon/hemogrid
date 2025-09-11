@@ -1,41 +1,39 @@
 # api/views.py
-from rest_framework.views import APIView
+from django.urls import get_resolver, URLPattern, URLResolver
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 
-class APIHomeView(APIView):
-    permission_classes = [AllowAny]  # Everyone can see this endpoint
+def list_urls(lis, parent_pattern=''):
+    grouped_urls = {}
 
-    def get(self, request):
-        data = {
-            "Authentication": {
-                "Register": "/api/auth/register/",
-                "Login": "/api/auth/jwt/create/",
-                "Refresh Token": "/api/auth/jwt/refresh/"
-            },
-            "Blood Requests": {
-                "List Requests": "/api/requests/",
-                "Create Request": "/api/blood-requests/create/",
-                "Accept Request": "/api/blood-requests/<id>/accept/",
-                "My Requests": "/api/my-requests/",
-                "Update Status": "/api/blood-requests/<id>/update-status/"
-            },
-            "Donations": {
-                "Donation History": "/api/donation-history/",
-                "All Donation History": "/api/donation-history/all/"
-            },
-            "Users": {
-                "List Users": "/api/donors/",
-                "User Profile": "/api/donor-profile/"
-            },
-            "Admin": {
-                "List All Users": "/api/admin/users/",
-                "List All Requests": "/api/admin/requests/",
-                "Stats": "/api/admin/stats/"
-            },
-            "Notifications": {
-                "List": "/api/notifications/",
-                "Mark Read": "/api/notifications/mark-read/<id>/"
-            }
-        }
-        return Response(data)
+    for item in lis:
+        if isinstance(item, URLPattern):
+            # Determine the app name from the pattern (or use 'General')
+            app_name = getattr(item.callback, 'cls', None)  # For class-based views
+            if hasattr(app_name, '__module__'):
+                app_name = app_name.__module__.split('.')[0]
+            else:
+                app_name = 'General'
+
+            if app_name not in grouped_urls:
+                grouped_urls[app_name] = {}
+
+            name = item.name or str(item.pattern)
+            path_ = parent_pattern + str(item.pattern)
+            grouped_urls[app_name][name] = '/' + path_
+
+        elif isinstance(item, URLResolver):
+            nested = list_urls(item.url_patterns, parent_pattern + str(item.pattern))
+            # Merge nested URLs into grouped_urls
+            for k, v in nested.items():
+                if k not in grouped_urls:
+                    grouped_urls[k] = {}
+                grouped_urls[k].update(v)
+
+    return grouped_urls
+
+@api_view(['GET'])
+def api_home(request):
+    resolver = get_resolver()
+    grouped_urls = list_urls(resolver.url_patterns)
+    return Response(grouped_urls)
