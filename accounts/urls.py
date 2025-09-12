@@ -12,7 +12,8 @@ from .views import (
     UpdateEmailView,
     UpdateAvailabilityView,
     AdminUserListView,
-    AdminUserUpdateView
+    AdminUserUpdateView,
+    MyTokenObtainPairView
 )
 
 app_name = "auth"
@@ -24,12 +25,13 @@ urlpatterns = [
     path('update-email/', UpdateEmailView.as_view(), name='update-email'),
     path('update-availability/', UpdateAvailabilityView.as_view(), name='update-availability'),
 
-    # ADMIN
+    # Admin
     path('admin/users/', AdminUserListView.as_view(), name='admin-users-list'),
     path('admin/users/<int:pk>/update/', AdminUserUpdateView.as_view(), name='admin-user-update'),
 
     # JWT authentication
-    path('login/', TokenObtainPairView.as_view(), name='login'),
+    path('login/', MyTokenObtainPairView.as_view(), name='login'),
+
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('logout/', TokenBlacklistView.as_view(), name='logout'),
 

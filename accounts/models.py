@@ -67,6 +67,8 @@ class User(AbstractUser):
 
     profile_picture = CloudinaryField('image', blank=True, null=True, default='profile_pictures/default.jpg')
 
+    
+
     groups = models.ManyToManyField(Group, blank=True)
     user_permissions = models.ManyToManyField(Permission, blank=True)
 

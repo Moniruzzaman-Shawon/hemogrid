@@ -31,13 +31,21 @@ class BloodRequestCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
-        blood_request = serializer.save(requester=self.request.user)
+        user = self.request.user
+
+        # Make user a donor if not already
+        if user.role != "donor":
+            user.role = "donor"
+            user.availability_status = True  # optional: mark as available
+            user.save()
+
+        blood_request = serializer.save(requester=user)
 
         # Trigger notification to nearby donors
         nearby_donors = User.objects.filter(
             role='donor',
             is_verified=True,
-            availability_status='available',
+            availability_status=True,
             blood_group=blood_request.blood_group
         )
         for donor in nearby_donors:
@@ -45,6 +53,7 @@ class BloodRequestCreateView(generics.CreateAPIView):
                 user=donor,
                 message=f"New blood request for {blood_request.blood_group} near you!"
             )
+
 
 class BloodRequestListView(generics.ListAPIView):
     serializer_class = BloodRequestSerializer
@@ -118,6 +127,7 @@ class AdminBloodRequestListView(generics.ListAPIView):
     queryset = BloodRequest.objects.all().order_by('-created_at')
     serializer_class = AdminBloodRequestSerializer
     permission_classes = [IsAdminUser]
+    
 
 class AdminStatsView(APIView):
     permission_classes = [IsAdminUser]
