@@ -54,6 +54,8 @@ urlpatterns = [
 
    # Browsable API login
    path('api-auth/', include('rest_framework.urls')),
+
+   path('api/donation/', include('donation.urls')),
 ]
 
 if settings.DEBUG:
