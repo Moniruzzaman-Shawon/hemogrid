@@ -217,5 +217,7 @@ SWAGGER_SETTINGS = {
             'in': 'header',
             'description': 'Enter your JWT token in the format: `JWT <YOUR_TOKEN>`'
       }
-   }
+   },
+   # Use a defensive generator to avoid 500s during schema build
+   'DEFAULT_GENERATOR_CLASS': 'hemogrid.swagger.SafeOpenAPISchemaGenerator',
 }

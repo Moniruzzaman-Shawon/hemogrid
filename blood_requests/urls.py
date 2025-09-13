@@ -24,9 +24,6 @@ urlpatterns = [
     # Update blood request status (only requester can do this)
     path('blood-requests/<int:pk>/update-status/', UpdateBloodRequestStatusView.as_view(), name='blood-request-update-status'),
 
-    # Donor's own donation history
-    path('donation-history/', UserDonationHistoryView.as_view(), name='user-donation-history'),
-
     # Requester's own requests
     path('my-requests/', MyRequestsView.as_view(), name='my-requests'),
 
