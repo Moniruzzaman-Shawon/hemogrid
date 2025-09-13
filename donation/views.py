@@ -1,9 +1,13 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from sslcommerz_lib import SSLCOMMERZ
 
 @api_view(['POST'])
 def initiate_payment(request):
+    # Lazy import to avoid import-time errors during schema generation
+    try:
+        from sslcommerz_lib import SSLCOMMERZ
+    except Exception:
+        return Response({'error': 'Payment gateway unavailable'}, status=503)
     amount = request.data.get('amount')
     donor_name = request.data.get('name')
     donor_email = request.data.get('email')
@@ -45,6 +49,5 @@ def initiate_payment(request):
         return Response({'payment_url': response['GatewayPageURL']})
     else:
         return Response({'error': 'Failed to create payment session', 'details': response}, status=400)
-
 
 

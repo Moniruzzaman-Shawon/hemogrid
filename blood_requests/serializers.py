@@ -67,15 +67,6 @@ class AdminStatsSerializer(serializers.Serializer):
 class AcceptBloodRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = BloodRequest
-        fields = [
-            'id',
-            'requester',
-            'blood_type',
-            'quantity',
-            'location',
-            'status',
-            'is_active',
-            'created_at',
-            'updated_at',
-        ]
-        read_only_fields = ['id', 'requester', 'status', 'is_active', 'created_at', 'updated_at']
+        # Minimal fields; the Accept view does not use serializer input
+        fields = ['id', 'status']
+        read_only_fields = ['id', 'status']

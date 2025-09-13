@@ -64,6 +64,9 @@ class BloodRequestListView(generics.ListAPIView):
     ordering_fields = ['created_at']
 
     def get_queryset(self):
+        # Avoid DB side effects during schema generation
+        if getattr(self, 'swagger_fake_view', False):
+            return BloodRequest.objects.none()
         now = timezone.now()
         # Auto-close expired requests
         BloodRequest.objects.filter(expires_at__lt=now, is_active=True).update(is_active=False)
@@ -95,6 +98,7 @@ class AcceptBloodRequestView(generics.GenericAPIView):
 class UpdateBloodRequestStatusView(generics.UpdateAPIView):
     serializer_class = BloodRequestStatusSerializer
     permission_classes = [permissions.IsAuthenticated]
+    queryset = BloodRequest.objects.all()
 
     def get_object(self):
         return get_object_or_404(BloodRequest, pk=self.kwargs['pk'], requester=self.request.user)
@@ -104,6 +108,8 @@ class UserDonationHistoryView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return DonationHistory.objects.none()
         return DonationHistory.objects.filter(donor=self.request.user)
 
 class MyRequestsView(generics.ListAPIView):
@@ -111,6 +117,8 @@ class MyRequestsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return BloodRequest.objects.none()
         return BloodRequest.objects.filter(requester=self.request.user)
 
 class DonationHistoryView(generics.ListAPIView):
@@ -118,6 +126,8 @@ class DonationHistoryView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):
+            return BloodRequest.objects.none()
         return BloodRequest.objects.filter(donations__donor=self.request.user)
 
 # -------------------------

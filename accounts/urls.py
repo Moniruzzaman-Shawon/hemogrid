@@ -1,5 +1,6 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenBlacklistView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.conf import settings
 from .views import (
     RegisterView,
     VerifyEmailView,
@@ -33,7 +34,6 @@ urlpatterns = [
     path('login/', MyTokenObtainPairView.as_view(), name='login'),
 
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('logout/', TokenBlacklistView.as_view(), name='logout'),
 
     # Donor profile & listing
     path('donor-profile/', DonorProfileView.as_view(), name='donor-profile'),
@@ -47,3 +47,13 @@ urlpatterns = [
     path('reset-password/<uidb64>/<token>/', ResetPasswordView.as_view(), name='reset-password'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ]
+
+# Optionally register logout (blacklist) if app installed
+try:
+    if 'rest_framework_simplejwt.token_blacklist' in settings.INSTALLED_APPS:
+        from rest_framework_simplejwt.views import TokenBlacklistView
+        urlpatterns += [
+            path('logout/', TokenBlacklistView.as_view(), name='logout'),
+        ]
+except Exception:
+    pass

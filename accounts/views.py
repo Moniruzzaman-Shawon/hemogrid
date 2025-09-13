@@ -70,7 +70,9 @@ class RegisterView(generics.CreateAPIView):
             fail_silently=False,
         )
 
-class VerifyEmailView(generics.GenericAPIView):
+from rest_framework.views import APIView
+
+class VerifyEmailView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):

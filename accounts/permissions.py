@@ -9,7 +9,9 @@ class IsRole(permissions.BasePermission):
     """
 
     def __init__(self, roles=None):
-        self.roles = roles or []
+        # Support instance-specific roles when provided; otherwise use class attr
+        if roles is not None:
+            self.roles = list(roles)
 
     def has_permission(self, request, view):
         return bool(
@@ -21,7 +23,9 @@ class IsRole(permissions.BasePermission):
     @classmethod
     def with_roles(cls, *roles):
         """
-        Factory method so we can do:
-        permission_classes = [IsRole.with_roles('admin')]
+        Factory to create a permission class bound to specific roles, e.g.:
+        permission_classes = [IsRole.with_roles('admin', 'staff')]
         """
-        return type("IsRoleSubclass", (cls,), {"__init__": lambda self: super(cls, self).__init__(roles)})
+        # Create a subclass with a class attribute 'roles'. DRF will instantiate
+        # it without args, and instances will read roles from the class.
+        return type("IsRoleSubclass", (cls,), {"roles": list(roles)})

@@ -16,8 +16,8 @@ User = get_user_model()
 class AdminUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'blood_group', 'is_active', 'is_verified', 'is_staff']
-        read_only_fields = ['id', 'username', 'email']
+        fields = ['id', 'email', 'blood_group', 'is_active', 'is_verified', 'is_staff']
+        read_only_fields = ['id', 'email']
 
 # Admin update (suspend/verify)
 class AdminUserUpdateSerializer(serializers.ModelSerializer):
