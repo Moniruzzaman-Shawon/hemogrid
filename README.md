@@ -104,17 +104,17 @@ python manage.py runserver
 | `/api/auth/register/` | POST | Register new user (with email verification) | ❌ No |
 | `/api/auth/login/` | POST | Login and get JWT token | ❌ No |
 | `/api/auth/logout/` | POST | Logout user | ✅ Yes |
-| `/api/donor-profile/` | GET, PUT | Get or update donor profile details | ✅ Yes |
+| `/api/auth/donor-profile/` | GET, PUT | Get or update donor profile details | ✅ Yes |
 | `/api/blood-requests/` | GET | List active blood requests | ✅ Yes |
 | `/api/blood-requests/create/` | POST | Create new blood request | ✅ Yes |
 | `/api/blood-requests/<id>/accept/` | POST | Accept a blood request | ✅ Yes |
-| `/api/donation-history/` | GET | View donor's donation history | ✅ Yes |
+| `/api/blood-requests/donation-history/` | GET | View donor's donation history | ✅ Yes |
 
 ---
 
 ## 📝 Notes
 
-- Use **JWT tokens** for authenticated requests in the `Authorization` header with prefix `JWT`.
+- Use tokens in the `Authorization` header with `Bearer <token>` (or `JWT <token>` for legacy).
 - Email verification link is sent **on registration**; clicking it activates the account.
 - Donors can **create and accept requests**; donation history tracks accepted donations.
 - **Search and filtering** features available on donor and request lists.

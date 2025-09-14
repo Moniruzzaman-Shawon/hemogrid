@@ -12,6 +12,7 @@ from .views import (
     ForgotPasswordView,
     UpdateEmailView,
     UpdateAvailabilityView,
+    ResendVerificationView,
     AdminUserListView,
     AdminUserUpdateView,
     MyTokenObtainPairView
@@ -23,6 +24,7 @@ urlpatterns = [
     # User registration and verification
     path('register/', RegisterView.as_view(), name='register'),
     path('verify-email/<uidb64>/<token>/', VerifyEmailView.as_view(), name='verify-email'),
+    path('resend-verification/', ResendVerificationView.as_view(), name='resend-verification'),
     path('update-email/', UpdateEmailView.as_view(), name='update-email'),
     path('update-availability/', UpdateAvailabilityView.as_view(), name='update-availability'),
 
