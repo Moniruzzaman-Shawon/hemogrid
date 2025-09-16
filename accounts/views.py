@@ -24,6 +24,7 @@ from blood_requests.models import BloodRequest, DonationHistory
 from blood_requests.serializers import BloodRequestSerializer, DonationHistorySerializer
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 User = get_user_model()
 
@@ -60,8 +61,9 @@ class RegisterView(generics.CreateAPIView):
         # Generate token
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        # Send verification email (backend link)
-        verify_link = f"http://localhost:8000/api/auth/verify-email/{uid}/{token}/"
+        # Send verification email (frontend link -> page calls backend)
+        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
         send_mail(
             "Verify your Hemogrid account",
             f"Click the link to verify your account: {verify_link}",
@@ -91,11 +93,50 @@ class VerifyEmailView(APIView):
         return Response({"error": "Invalid or expired token"}, status=status.HTTP_400_BAD_REQUEST)
 
 # -------------------------
+# Resend Verification Email
+# -------------------------
+from .serializers import ResendVerificationSerializer
+
+class ResendVerificationView(generics.GenericAPIView):
+    serializer_class = ResendVerificationSerializer
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email'].lower()
+
+        # Use generic response to avoid email enumeration
+        message = "If the email is registered and unverified, a verification link has been sent."
+
+        try:
+            user = User.objects.get(email__iexact=email)
+        except User.DoesNotExist:
+            return Response({"message": message}, status=status.HTTP_200_OK)
+
+        if user.is_active and getattr(user, 'is_verified', False):
+            return Response({"message": message}, status=status.HTTP_200_OK)
+
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
+        send_mail(
+            'Verify your Hemogrid account',
+            f'Click here to verify your account: {verify_link}',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+        return Response({"message": message}, status=status.HTTP_200_OK)
+
+# -------------------------
 # Donor Profile & Listing
 # -------------------------
 class DonorProfileView(generics.RetrieveUpdateAPIView):
     serializer_class = DonorProfileSerializer
     permission_classes = [permissions.IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser, JSONParser)
 
     def get_object(self):
         return self.request.user
@@ -143,7 +184,9 @@ class ForgotPasswordView(generics.GenericAPIView):
             user = User.objects.get(email=email)
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            reset_link = f"http://localhost:8000/api/auth/reset-password/{uid}/{token}/"
+            # Send users to the frontend reset page where they can submit a new password
+            frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+            reset_link = f"{frontend_base}/reset-password/{uid}/{token}/"
             send_mail(
                 'Reset your Hemogrid password',
                 f'Click here to reset your password: {reset_link}',
@@ -214,7 +257,8 @@ class UpdateEmailView(generics.UpdateAPIView):
         # Send verification email
         uid = urlsafe_base64_encode(force_bytes(self.object.pk))
         token = default_token_generator.make_token(self.object)
-        verify_link = f"http://localhost:8000/api/auth/verify-email/{uid}/{token}/"
+        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
+        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
         send_mail(
             'Verify your new Hemogrid email',
             f'Click here to verify your new email: {verify_link}',

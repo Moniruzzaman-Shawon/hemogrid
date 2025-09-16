@@ -15,6 +15,8 @@ from .serializers import (
 from accounts.models import User
 from notifications.models import Notification
 from django_filters.rest_framework import DjangoFilterBackend
+from django.core.mail import send_mail
+from django.conf import settings
 
 # -------------------------
 # Permissions
@@ -36,7 +38,8 @@ class BloodRequestCreateView(generics.CreateAPIView):
         # Make user a donor if not already
         if user.role != "donor":
             user.role = "donor"
-            user.availability_status = True  # optional: mark as available
+            # optional: mark as available using correct choice value
+            user.availability_status = 'available'
             user.save()
 
         blood_request = serializer.save(requester=user)
@@ -75,6 +78,7 @@ class BloodRequestListView(generics.ListAPIView):
 class AcceptBloodRequestView(generics.GenericAPIView):
     queryset = BloodRequest.objects.all()
     serializer_class = AcceptBloodRequestSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     
     def post(self, request, pk):
@@ -93,7 +97,46 @@ class AcceptBloodRequestView(generics.GenericAPIView):
         blood_request.status = 'accepted'
         blood_request.save()
 
+        # Phase 1 communication: notify donor and requester via email
+        try:
+            requester_email = blood_request.requester.email
+            donor_email = request.user.email
+            subject = f"Hemogrid: Your blood request has been accepted (#{blood_request.id})"
+            requester_msg = (
+                f"Good news! Your request for {blood_request.blood_group} has been accepted.\n\n"
+                f"Donor: {donor_email}\n"
+                f"Location: {blood_request.location or 'N/A'}\n"
+                f"Contact you provided: {blood_request.contact_info or 'N/A'}\n\n"
+                f"Request details: {blood_request.details or 'N/A'}\n"
+            )
+            donor_msg = (
+                f"You accepted a request (#{blood_request.id}) for {blood_request.blood_group}.\n\n"
+                f"Recipient contact: {blood_request.contact_info or 'N/A'}\n"
+                f"Location: {blood_request.location or 'N/A'}\n"
+                f"Request details: {blood_request.details or 'N/A'}\n"
+            )
+            send_mail(subject, requester_msg, settings.DEFAULT_FROM_EMAIL, [requester_email], fail_silently=True)
+            send_mail("Hemogrid: Request details", donor_msg, settings.DEFAULT_FROM_EMAIL, [donor_email], fail_silently=True)
+        except Exception:
+            pass
+
         return Response({"detail": "Request accepted successfully."}, status=status.HTTP_201_CREATED)
+
+
+class RequestContactView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        br = get_object_or_404(BloodRequest, pk=pk)
+        # Only requester or accepted donor may view contact
+        is_participant = (br.requester == request.user) or DonationHistory.objects.filter(donor=request.user, blood_request=br).exists()
+        if not is_participant:
+            return Response({"detail": "Not permitted"}, status=status.HTTP_403_FORBIDDEN)
+        return Response({
+            "recipient_contact": br.contact_info,
+            "recipient_email": br.requester.email,
+            "location": br.location,
+        })
 
 class UpdateBloodRequestStatusView(generics.UpdateAPIView):
     serializer_class = BloodRequestStatusSerializer
@@ -102,6 +145,54 @@ class UpdateBloodRequestStatusView(generics.UpdateAPIView):
 
     def get_object(self):
         return get_object_or_404(BloodRequest, pk=self.kwargs['pk'], requester=self.request.user)
+
+
+class CompleteBloodRequestView(generics.GenericAPIView):
+    queryset = BloodRequest.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        blood_request = get_object_or_404(BloodRequest, pk=pk)
+        
+        # Check if user is requester or donor
+        is_requester = blood_request.requester == request.user
+        is_donor = DonationHistory.objects.filter(donor=request.user, blood_request=blood_request).exists()
+        
+        if not (is_requester or is_donor):
+            return Response({"detail": "You can only complete requests you're involved in."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if blood_request.status != 'accepted':
+            return Response({"detail": "Request must be accepted before completion."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        blood_request.status = 'completed'
+        blood_request.is_active = False
+        blood_request.save()
+        
+        return Response({"detail": "Request completed successfully."}, status=status.HTTP_200_OK)
+
+
+class CancelBloodRequestView(generics.GenericAPIView):
+    queryset = BloodRequest.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        blood_request = get_object_or_404(BloodRequest, pk=pk)
+        
+        # Check if user is requester or admin
+        is_requester = blood_request.requester == request.user
+        is_admin = request.user.is_staff or request.user.role == 'admin'
+        
+        if not (is_requester or is_admin):
+            return Response({"detail": "You can only cancel your own requests."}, status=status.HTTP_403_FORBIDDEN)
+        
+        if blood_request.status in ['completed', 'cancelled']:
+            return Response({"detail": "Request is already completed or cancelled."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        blood_request.status = 'cancelled'
+        blood_request.is_active = False
+        blood_request.save()
+        
+        return Response({"detail": "Request cancelled successfully."}, status=status.HTTP_200_OK)
 
 class UserDonationHistoryView(generics.ListAPIView):
     serializer_class = DonationHistorySerializer

@@ -32,6 +32,9 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+# Frontend base URL for email links
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -68,7 +71,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'AUTH_HEADER_TYPES': ('JWT',),
+    # Support both legacy 'JWT' and common 'Bearer' prefixes
+    'AUTH_HEADER_TYPES': ('Bearer', 'JWT'),
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
 }
 

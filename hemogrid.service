@@ -1,0 +1,17 @@
+[Unit]
+Description=Hemogrid Django Application
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+Group=www-data
+WorkingDirectory=/path/to/hemogrid-project/hemogrid
+Environment=DJANGO_SETTINGS_MODULE=hemogrid.settings_prod
+ExecStart=/path/to/hemogrid-project/hemogrid/venv/bin/gunicorn --config gunicorn.conf.py hemogrid.wsgi:application
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
