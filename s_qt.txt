@@ -1,0 +1,17 @@
+export USE_SQLITE_DB=1
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+
+To switch off the SQLite fallback and talk to Postgres again:
+1. Make sure USE_SQLITE_DB is unset (remove it from the shell / .env).
+2. Double‑check the Supabase credentials in .env (dbname, user, password, host, port) against the connection info in your Supabase project—“Tenant or user not found” means one of those values is wrong, so update them if needed.
+Reactivate the venv, load the .env, then run:
+source .hemo_env/bin/activate
+export $(cat .env | xargs)   
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+
+Once the credentials are correct, migrations and the server will run on Postgres; if the error persists, Supabase is still rejecting the login, so recheck the supplied username/password/database.

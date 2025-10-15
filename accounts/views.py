@@ -8,6 +8,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.conf import settings
+from django.urls import reverse
 from .serializers import (
     RegisterSerializer,
     DonorProfileSerializer,
@@ -27,6 +28,28 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 User = get_user_model()
+
+
+def build_verification_link(request, uid, token):
+    """
+    Determine the verification link to send to the user.
+    Preference order:
+      1. EMAIL_VERIFICATION_BASE_URL (explicit override)
+      2. FRONTEND_URL (for SPA-driven flows)
+      3. Current request domain pointing to the API endpoint
+    """
+    base_url = getattr(settings, 'EMAIL_VERIFICATION_BASE_URL', None)
+    if base_url:
+        return f"{base_url.rstrip('/')}/verify-email/{uid}/{token}/"
+
+    frontend_base = getattr(settings, 'FRONTEND_URL', None)
+    if frontend_base:
+        return f"{str(frontend_base).rstrip('/')}/verify-email/{uid}/{token}/"
+
+    verify_path = reverse('auth:verify-email', kwargs={'uidb64': uid, 'token': token})
+    if request:
+        return request.build_absolute_uri(verify_path)
+    return verify_path
 
 # -------------------------
 # Only admins allowed
@@ -61,9 +84,8 @@ class RegisterView(generics.CreateAPIView):
         # Generate token
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        # Send verification email (frontend link -> page calls backend)
-        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
+        # Send verification email using configured link base
+        verify_link = build_verification_link(self.request, uid, token)
         send_mail(
             "Verify your Hemogrid account",
             f"Click the link to verify your account: {verify_link}",
@@ -119,8 +141,7 @@ class ResendVerificationView(generics.GenericAPIView):
 
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
-        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
+        verify_link = build_verification_link(self.request, uid, token)
         send_mail(
             'Verify your Hemogrid account',
             f'Click here to verify your account: {verify_link}',

@@ -2,8 +2,8 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-from decouple import config
 import cloudinary
+import importlib
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -14,7 +14,8 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+# SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = "k8UDe6TdVTtCKCNidxaW7VgKvXu5eMFd6TyH_OXzfznpirN__5aMZr_6oBIN4Y76_iI"
 DEBUG = False
 
 # ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
@@ -34,11 +35,18 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Frontend base URL for email links
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+EMAIL_VERIFICATION_BASE_URL = os.getenv('EMAIL_VERIFICATION_BASE_URL')
 
 # Application definition
 
+USE_WHITENOISE = False
+try:
+    importlib.import_module("whitenoise")
+    USE_WHITENOISE = True
+except ImportError:
+    USE_WHITENOISE = False
+
 INSTALLED_APPS = [
-    "whitenoise.runserver_nostatic",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,6 +65,9 @@ INSTALLED_APPS = [
     'notifications',
 
 ]
+
+if USE_WHITENOISE:
+    INSTALLED_APPS.insert(0, "whitenoise.runserver_nostatic")
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -83,7 +94,6 @@ SIMPLE_JWT = {
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware",
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -92,6 +102,10 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if USE_WHITENOISE:
+    insertion_index = MIDDLEWARE.index('django.middleware.security.SecurityMiddleware') + 1 if 'django.middleware.security.SecurityMiddleware' in MIDDLEWARE else 1
+    MIDDLEWARE.insert(insertion_index, "whitenoise.middleware.WhiteNoiseMiddleware")
 
 ROOT_URLCONF = 'hemogrid.urls'
 
@@ -124,16 +138,31 @@ WSGI_APPLICATION = 'hemogrid.wsgi.app'
 # }
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('dbname'),
-        'USER': config('user'),
-        'PASSWORD': config('password'),
-        'HOST': config('host'),
-        'PORT': config('port')
+_force_sqlite = str(os.getenv('USE_SQLITE_DB', '')).lower() in ('1', 'true', 'yes')
+_pg_name = os.getenv('dbname')
+_pg_user = os.getenv('user')
+_pg_password = os.getenv('password')
+_pg_host = os.getenv('host')
+_pg_port = os.getenv('port')
+
+if not _force_sqlite and all([_pg_name, _pg_user, _pg_password, _pg_host]):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _pg_name,
+            'USER': _pg_user,
+            'PASSWORD': _pg_password,
+            'HOST': _pg_host,
+            'PORT': _pg_port or '5432',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 
@@ -161,10 +190,10 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 # Configuration for cloudinary storage      
-cloudinary.config( 
-    cloud_name = config('cloud_name'), 
-    api_key = config('cloudinary_api_key'), 
-    api_secret = config('api_secret'), 
+cloudinary.config(
+    cloud_name=os.getenv('cloud_name'),
+    api_key=os.getenv('cloudinary_api_key'),
+    api_secret=os.getenv('api_secret'),
     secure=True
 )
 
