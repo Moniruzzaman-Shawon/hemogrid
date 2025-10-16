@@ -30,6 +30,17 @@ from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 User = get_user_model()
 
 
+def get_frontend_base_url():
+    """
+    Base URL for SPA routes, configured via FRONTEND_URL in settings/.env.
+    Returns None when not set so callers can fall back to backend links.
+    """
+    frontend = getattr(settings, 'FRONTEND_URL', None)
+    if frontend:
+        return str(frontend).rstrip('/')
+    return None
+
+
 def build_verification_link(request, uid, token):
     """
     Determine the verification link to send to the user.
@@ -40,11 +51,11 @@ def build_verification_link(request, uid, token):
     """
     base_url = getattr(settings, 'EMAIL_VERIFICATION_BASE_URL', None)
     if base_url:
-        return f"{base_url.rstrip('/')}/verify-email/{uid}/{token}/"
+        return f"{str(base_url).rstrip('/')}/verify-email/{uid}/{token}/"
 
-    frontend_base = getattr(settings, 'FRONTEND_URL', None)
+    frontend_base = get_frontend_base_url()
     if frontend_base:
-        return f"{str(frontend_base).rstrip('/')}/verify-email/{uid}/{token}/"
+        return f"{frontend_base}/verify-email/{uid}/{token}/"
 
     verify_path = reverse('auth:verify-email', kwargs={'uidb64': uid, 'token': token})
     if request:
@@ -206,8 +217,12 @@ class ForgotPasswordView(generics.GenericAPIView):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             # Send users to the frontend reset page where they can submit a new password
-            frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-            reset_link = f"{frontend_base}/reset-password/{uid}/{token}/"
+            frontend_base = get_frontend_base_url()
+            if frontend_base:
+                reset_link = f"{frontend_base}/reset-password/{uid}/{token}/"
+            else:
+                reset_path = reverse('auth:reset-password', kwargs={'uidb64': uid, 'token': token})
+                reset_link = request.build_absolute_uri(reset_path) if request else reset_path
             send_mail(
                 'Reset your Hemogrid password',
                 f'Click here to reset your password: {reset_link}',
@@ -278,8 +293,7 @@ class UpdateEmailView(generics.UpdateAPIView):
         # Send verification email
         uid = urlsafe_base64_encode(force_bytes(self.object.pk))
         token = default_token_generator.make_token(self.object)
-        frontend_base = getattr(settings, 'FRONTEND_URL', 'http://localhost:3000')
-        verify_link = f"{frontend_base}/verify-email/{uid}/{token}/"
+        verify_link = build_verification_link(self.request, uid, token)
         send_mail(
             'Verify your new Hemogrid email',
             f'Click here to verify your new email: {verify_link}',

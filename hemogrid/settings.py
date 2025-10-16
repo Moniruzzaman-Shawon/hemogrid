@@ -18,8 +18,12 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = "k8UDe6TdVTtCKCNidxaW7VgKvXu5eMFd6TyH_OXzfznpirN__5aMZr_6oBIN4Y76_iI"
 DEBUG = False
 
-# ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
-ALLOWED_HOSTS = [".vercel.app", "127.0.0.1"]
+_default_allowed_hosts = ".vercel.app,127.0.0.1,localhost,testserver"
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.getenv("ALLOWED_HOSTS", _default_allowed_hosts).split(",")
+    if host.strip()
+]
 
 # Activation 
 
@@ -34,7 +38,7 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Frontend base URL for email links
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+FRONTEND_URL = os.getenv('FRONTEND_URL')
 EMAIL_VERIFICATION_BASE_URL = os.getenv('EMAIL_VERIFICATION_BASE_URL')
 
 # Application definition

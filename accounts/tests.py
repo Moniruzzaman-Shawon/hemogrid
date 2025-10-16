@@ -12,6 +12,7 @@ User = get_user_model()
     EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
     DEFAULT_FROM_EMAIL="noreply@example.com",
     FRONTEND_URL="http://testserver",
+    EMAIL_VERIFICATION_BASE_URL=None,
 )
 class RegisterViewTests(APITestCase):
     def test_user_can_register_and_email_is_sent(self):
